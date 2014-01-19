@@ -1,0 +1,19 @@
+REA Sinatra application provisioning script.
+
+This script is used to provision the REA "Hello World" application using the
+unicorn application server along with the nginx web server compiled with 
+Mod Security support and a basic ruleset.
+
+It is worth noting that the script requires root level permissions to run. 
+It also assumes a RHEL/CentOS 6 64bit installation and a network connection is 
+configured and working on the server.
+
+To run, extract all of the files in the tarball, then run the following:
+
+sudo ./sinatra_app_prov.sh
+
+This should install all necessary applications, disable any un-necassary
+services and configure the web and application servers for startup.
+
+
+

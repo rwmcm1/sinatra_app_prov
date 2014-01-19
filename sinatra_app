@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# chkconfig: - 24 73
+# description: Starts and stops the sinatra_app daemon
+#	       #
+
+
+
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+# Source networking configuration.
+. /etc/sysconfig/network
+
+# Check that networking is up.
+[ ${NETWORKING} = "no" ] && exit 1
+
+# User account for starting the unicorn applicaiton
+UNIUSR="unicorn"
+
+# App home directory
+MYAPP_DEST="/var/www/sinatra"
+
+RETVAL=0
+
+
+start() {
+    echo
+	echo -n $"Starting sinatra_app service: "
+	/bin/su - ${UNIUSR} -s /bin/bash -c "cd ${MYAPP_DEST}; unicorn -D"
+	RETVAL=$?
+	echo
+	if [ $RETVAL -eq 0 ] 
+		then 
+		touch /var/lock/subsys/sinatra_app 
+		/bin/ps -ef | grep ^unicorn | grep -v grep | grep " master " | awk '{print $2}' > /var/run/sinatra_app.pid
+	else
+		RETVAL=1
+	fi
+
+	return $RETVAL
+}	
+
+stop() {
+        echo
+	
+	echo -n $"Shutting down sinatra_app services: "
+	killproc -p /var/run/sinatra_app.pid 
+	RETVAL=$?
+	[ $RETVAL -eq 0 ] && rm -f /var/lock/subsys/sinatra_app
+	echo ""
+	return $RETVAL
+}	
+
+restart() {
+	stop
+	start
+}	
+
+
+case "$1" in
+  start)
+  	start
+	;;
+  stop)
+  	stop
+	;;
+  restart)
+  	restart
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart}"
+	exit 2
+esac
+
+exit $?
